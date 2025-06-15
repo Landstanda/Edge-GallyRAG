@@ -1,0 +1,46 @@
+# Android build artifacts
+**/build/
+**/app/build/
+**/.gradle/
+**/local.properties
+**/gradle-wrapper.jar
+**/gradle-wrapper.properties
+
+# IDE files
+**/.idea/
+**/.vscode/
+**/.cursor/
+
+# Android Studio
+*.iml
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large binary files
+*.zip
+*.apk
+*.aab
+
+# Model files (too large for git)
+Models/
+**/models/
+**/*.task
+**/*.tflite
+**/*.model
+
+# Backup directories
+gallery-original/
+
+# Temporary files
+*.tmp
+*.temp
+*.log 
