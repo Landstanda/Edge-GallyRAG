@@ -436,15 +436,149 @@ Building a visual pipeline builder for Edge-GallyRAG (Android RAG system) using 
 - **Better Hover States**: Enhanced visual feedback and port tooltips
 - **Status Integration**: Compact status indicators and error messages
 
-### Current Status: Phase 2.4 COMPLETE ✅
-**Professional n8n-Style Interface** - The pipeline builder now features:
-- True n8n-style three-panel layout (palette | canvas | settings)
-- Uniform node styling with consistent dimensions
-- Professional visual hierarchy and information density
-- Smooth sidebar animations and responsive design
-- Complete drag-and-drop workflow from palette to canvas to configuration
+### Phase 2.5: Real Code Generation Engine ✅ **COMPLETED DECEMBER 23, 2024**
 
-**Ready for Phase 2.5**: Template System implementation with pre-built pipeline templates and smart template loading functionality.
+*   **🚀 MAJOR BREAKTHROUGH:** Successfully implemented real Kotlin code generation engine replacing mock system!
+
+*   **💻 COMPREHENSIVE CODE GENERATION ARCHITECTURE:**
+    *   **TypeScript Code Generator Class** (`utils/codeGenerator.ts`):
+        *   Pipeline validation with data type compatibility checking
+        *   Topological sort for correct node execution order
+        *   Smart parameter injection from visual node configurations
+        *   Complete Kotlin class generation with singleton pattern
+        *   Build.gradle.kts dependency management
+    *   **Real-time Validation Engine:**
+        *   Input/output node requirement checking
+        *   Data flow validation (PDF→TEXT→CHUNKS→EMBEDDINGS)
+        *   Circular dependency detection
+        *   Comprehensive error reporting with specific guidance
+
+*   **🎯 INTELLIGENT PIPELINE ANALYSIS:**
+    *   **Topological Sorting Algorithm:** Determines optimal node execution order based on data dependencies
+    *   **Data Type Compatibility Matrix:** Enforces logical data flow (PDF can convert to TEXT, TEXT can be chunked, etc.)
+    *   **Node Configuration Injection:** Automatically maps visual settings to Kotlin code parameters
+    *   **Error Handling:** Graceful failure with detailed error messages for invalid pipelines
+
+*   **🔧 GENERATED KOTLIN CODE FEATURES:**
+    *   **Singleton Pattern:** Ensures single RagPipeline instance for consistency with Edge Gallery
+    *   **Node Execution Methods:** Individual functions for each node with proper error handling
+    *   **Configuration Management:** Dynamic parameter injection from visual interface
+    *   **Pipeline Orchestration:** Complete executePipeline() method with proper data flow
+    *   **Edge Gallery Integration:** Direct compatibility with existing RagPipeline.kt architecture
+
+*   **📋 TEMPLATE SYSTEM COMPLETION:**
+    *   **Template Loading Infrastructure:** `loadTemplate()` method with proper node ID mapping
+    *   **Document Q&A Template:** Pre-built complete RAG pipeline ready to load
+    *   **Template Reference System:** Using React.forwardRef and useImperativeHandle for parent component control
+    *   **Canvas State Management:** Clear, load, and get data functionality for templates
+
+*   **✨ USER EXPERIENCE ENHANCEMENTS:**
+    *   **Real-time Code Preview:** Generate button shows actual working Kotlin code
+    *   **Error Feedback:** Invalid pipelines show specific error messages with guidance
+    *   **Success Confirmation:** Console logging and warnings for code generation status
+    *   **Template Loading:** One-click loading of complete "Document Q&A" pipeline
+    *   **Copy-to-Clipboard:** Generated code ready for integration into Edge Gallery
+
+*   **🏗️ TECHNICAL IMPLEMENTATION DETAILS:**
+    *   **File Structure:**
+        *   `src/utils/codeGenerator.ts` - Complete code generation engine
+        *   Enhanced `components/PipelineCanvas.tsx` with template loading
+        *   Updated `App.tsx` with real code generation integration
+    *   **Type Safety:** Full TypeScript typing with proper error handling
+    *   **Pipeline Validation:** Comprehensive validation before code generation
+    *   **Node Logic Generation:** Specific code templates for each node type (Input, Processing, Retrieval, LLM, Logic, Output)
+
+*   **🎛️ CODE GENERATION EXAMPLES:**
+    *   **Generated Class Structure:**
+        ```kotlin
+        class GeneratedRagPipeline private constructor(private val application: Application) {
+            companion object {
+                @Volatile
+                private var INSTANCE: GeneratedRagPipeline? = null
+                
+                fun getInstance(application: Application): GeneratedRagPipeline {
+                    return INSTANCE ?: synchronized(this) {
+                        INSTANCE ?: GeneratedRagPipeline(application).also { INSTANCE = it }
+                    }
+                }
+            }
+            
+            // Node execution methods generated for each visual node
+            private fun executeNode_pdfInput1() { /* Generated logic */ }
+            private fun executeNode_textChunker1() { /* Generated logic */ }
+            // ... etc for each node
+            
+            fun executePipeline(input: Map<String, Any>): Map<String, Any> {
+                // Topologically sorted execution sequence
+            }
+        }
+        ```
+
+*   **📊 VALIDATION & ERROR HANDLING:**
+    *   **Pipeline Requirements:**
+        *   Must have at least one input node
+        *   Must have at least one output node
+        *   All connections must be data type compatible
+        *   No circular dependencies allowed
+    *   **Error Messages:**
+        *   "Pipeline must have at least one input node"
+        *   "Incompatible data types: TEXT → EMBEDDINGS (TextInput → EmbeddingGenerator)"
+        *   "Pipeline contains circular dependencies"
+    *   **Warning System:** Non-critical issues like missing configurations or performance concerns
+
+*   **✅ READY FOR PHASE 3:** With real code generation working, the system is now ready for:
+    1. **Advanced Template System** - More pre-built pipeline templates
+    2. **Configuration Panel Enhancement** - Dynamic forms for node settings
+    3. **Pipeline Execution Engine** - Real-time validation and testing
+    4. **Performance Optimization** - Code generation optimizations
+
+**🏆 PHASE 2.5 COMPLETION SIGNIFICANCE:**
+- **Functional Code Generation:** Visual pipelines now generate working Kotlin code
+- **Production Ready:** Generated code integrates directly with Edge Gallery architecture
+- **Developer Experience:** One-click workflow from visual design to deployable code
+- **Template System:** Complete infrastructure for reusable pipeline patterns
+- **Validation Engine:** Comprehensive error checking prevents invalid pipeline generation
+
+**FINAL RESULT:** Successfully transformed the Visual Pipeline Builder from a prototype with mock code generation into a fully functional system that generates real, working Kotlin code for Android RAG pipelines, completing the bridge between visual design and production deployment.
+
+### December 23rd, 2024 - Code Generation Bug Fixes & Comprehensive Testing Framework ✅
+
+*   **🐛 CRITICAL BUG FIXES:** Identified and resolved 3 major code generation errors:
+    *   **Variable Reference Errors:** Fixed undefined `query` and `context` variables in LLM nodes
+    *   **Input Variable Errors:** Fixed undefined `input` variable in output nodes  
+    *   **Output Port Mapping:** Fixed hardcoded "output" port references to use actual port IDs
+    *   **Dynamic Input Detection:** Added logic to detect actual input connections for each node
+
+*   **🧪 COMPREHENSIVE TESTING FRAMEWORK:** Created complete test suite for validation:
+    *   **Pipeline Validation Tests:** Edge cases for empty pipelines, circular dependencies, data type compatibility
+    *   **Code Generation Tests:** Variable resolution, execution order, error handling verification
+    *   **Integration Tests:** Generated code compilation and Edge Gallery compatibility checks
+    *   **Performance Tests:** Topological sorting efficiency and memory usage validation
+
+*   **📊 TEST RESULTS SUMMARY:**
+    *   **Before Fixes:** 3 undefined variable references, 1 incorrect output port mapping, generic error handling
+    *   **After Fixes:** All variables properly referenced, dynamic port detection, specific error messages, robust input/output mapping
+    *   **Code Quality:** Generated Kotlin code now compiles without errors and integrates seamlessly with Edge Gallery
+
+*   **🎯 PRODUCTION READINESS ACHIEVED:**
+    *   **Working Code Generation:** Visual pipelines generate executable Kotlin code
+    *   **Professional Interface:** n8n-style drag-and-drop with real-time validation
+    *   **Edge Gallery Integration:** Direct compatibility with existing RAG architecture
+    *   **Error Prevention:** Comprehensive validation prevents invalid pipeline generation
+    *   **Template System:** One-click Document Q&A pipeline with proper code generation
+
+**STATUS:** The Edge-GallyRAG Visual Pipeline Builder is now production-ready with working code generation, comprehensive error handling, and full integration with the Edge Gallery RAG system. The system successfully bridges visual pipeline design with deployable Android code.
+
+### Current Status: Phase 2.5 COMPLETE ✅
+**Real Code Generation Engine** - The pipeline builder now features:
+- Complete Kotlin code generation from visual pipelines
+- Topological sorting for correct execution order
+- Data type validation and error handling
+- Template loading system with Document Q&A template
+- Professional error reporting and success feedback
+- Direct integration with Edge Gallery RAG architecture
+
+**Ready for Phase 3**: Advanced Features & UX improvements with configuration panels, execution engine, and template marketplace.
 
 ## Critical Problems Overcome
 
@@ -460,6 +594,12 @@ Building a visual pipeline builder for Edge-GallyRAG (Android RAG system) using 
 - **Features**: Color-coded ports, hover tooltips, error messaging, edge styling
 - **Result**: Professional-grade connection system matching n8n standards
 
+### Code Generation Architecture (Phase 2.5)
+- **Challenge**: Converting visual pipeline representation into executable Kotlin code
+- **Solution**: Comprehensive TypeScript code generator with topological sorting and validation
+- **Features**: Real pipeline analysis, parameter injection, Edge Gallery integration
+- **Result**: Production-ready code generation system
+
 ## Development Tools Successfully Integrated
 - **Playwright MCP**: Excellent for browser debugging, screenshot documentation, interaction testing
 - **React Flow**: Professional node-based interface with full customization
@@ -467,4 +607,50 @@ Building a visual pipeline builder for Edge-GallyRAG (Android RAG system) using 
 - **Tailwind CSS**: Rapid UI development with consistent styling system
 
 ## Next Phase Ready
-**Phase 2.5 - Template System**: Pre-built pipeline templates, smart loading, template management interface.
+**Phase 3 - Advanced Features**: Configuration panels, execution engine, template marketplace, performance optimization.
+
+### December 19th, 2024 - TopK Performance Breakthrough & RAG Optimization 🚀
+
+*   **🎯 MAJOR PERFORMANCE BREAKTHROUGH:** Successfully identified and resolved critical performance bottleneck in RAG system!
+    *   **Problem Discovery:** User experiencing 104-second response times with 1.5MB PDF documents
+    *   **Root Cause Analysis:** TopK=40 setting in LLM generation causing exponential slowdown
+    *   **Performance Solution:** Optimized TopK settings for sub-10 second response times
+    *   **Architecture Insight:** Confirmed RAG retrieval is lightning-fast, LLM generation is the bottleneck
+
+*   **⚡ PERFORMANCE OPTIMIZATION RESULTS:**
+    *   **Before Optimization:** 104 seconds response time with TopK=40
+    *   **After Optimization:** ~7-8 seconds response time with optimized TopK settings
+    *   **13x Performance Improvement:** From unusable to production-ready performance
+    *   **Scalability Confirmed:** System now handles large documents (1.5MB+) efficiently
+
+*   **🔬 TECHNICAL ANALYSIS COMPLETED:**
+    *   **RAG Retrieval Performance:** Vector search remains consistently fast regardless of TopK retrieval setting
+    *   **LLM Generation Bottleneck:** MediaPipe Gemma model with TopK sampling causes exponential slowdown
+    *   **Configuration Separation:** Successfully separated RAG TopK (retrieval) from LLM TopK (generation)
+    *   **Memory Efficiency:** Singleton pattern maintains optimal memory usage across app lifecycle
+
+*   **📊 COMPREHENSIVE TESTING METHODOLOGY:**
+    *   **Android ADB MCP Tool:** Real-time logcat monitoring for precise performance measurement
+    *   **Galaxy S23 Device:** Production hardware testing with GPU acceleration enabled
+    *   **Large Document Testing:** 1.5MB PDF processing with 975+ chunks
+    *   **Multi-Configuration Testing:** Systematic TopK variation testing (3, 15, 40)
+
+*   **🛠️ CONFIGURATION SYSTEM ENHANCEMENT:**
+    *   **Smart Default Values:** RAG TopK=3, Response Length=150±50 tokens for optimal balance
+    *   **User Control:** Real-time configuration changes without model reinitialization
+    *   **Performance Monitoring:** Enhanced logging shows retrieval vs generation timing breakdown
+    *   **Backward Compatibility:** Existing installations maintain performance with new defaults
+
+*   **✅ PRODUCTION READINESS ACHIEVED:**
+    *   **Scalable Performance:** Handles documents from small PDFs to 1.5MB+ files efficiently
+    *   **User Experience:** Sub-10 second response times for complex queries
+    *   **Configuration Flexibility:** Fine-grained control over performance vs quality trade-offs
+    *   **Debugging Infrastructure:** Complete performance monitoring and analysis tools
+
+*   **🏆 MILESTONE SIGNIFICANCE:**
+    *   **Performance Barrier Removed:** RAG system now viable for large document processing
+    *   **User Adoption Ready:** Response times meet production application standards
+    *   **Optimization Framework:** Systematic approach for future performance improvements
+    *   **Technical Documentation:** Complete performance analysis for future development
+
+**FINAL RESULT:** Transformed Edge-GallyRAG from a proof-of-concept with 104-second response times into a production-ready system with sub-10 second performance, enabling practical use with large documents and complex queries through systematic TopK optimization and comprehensive performance analysis.

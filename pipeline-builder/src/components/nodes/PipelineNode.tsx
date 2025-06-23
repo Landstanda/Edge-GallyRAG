@@ -1,14 +1,7 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { 
-  FileText, 
   Type, 
-  Scissors, 
-  Zap, 
-  Database, 
-  Search, 
-  Brain, 
-  MessageSquare, 
   GitBranch, 
   Merge, 
   MessageCircle, 

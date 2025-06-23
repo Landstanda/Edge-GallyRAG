@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
   ReactFlow,
   Background,
@@ -13,7 +13,7 @@ import {
 import type { Connection, Edge, Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import type { PipelineNode, PipelineEdge, NodeTemplate } from '../types/pipeline';
+import type { PipelineNode, PipelineEdge, NodeTemplate, Pipeline } from '../types/pipeline';
 import { NodeType, DataType } from '../types/pipeline';
 import NodePalette from './NodePalette';
 import ConfigurationPanel from './ConfigurationPanel';
@@ -34,7 +34,13 @@ interface PipelineCanvasProps {
   onGenerate?: (nodes: Node[], edges: Edge[]) => void;
 }
 
-const PipelineCanvas: React.FC<PipelineCanvasProps> = ({ onSave, onGenerate }) => {
+export interface PipelineCanvasHandle {
+  loadTemplate: (template: Pipeline) => void;
+  clearCanvas: () => void;
+  getCanvasData: () => { nodes: Node[], edges: Edge[] };
+}
+
+const PipelineCanvas = forwardRef<PipelineCanvasHandle, PipelineCanvasProps>(({ onSave, onGenerate }, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<PipelineNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<PipelineEdge>([]);
   const [selectedNode, setSelectedNode] = useState<PipelineNode | null>(null);
@@ -273,10 +279,7 @@ const PipelineCanvas: React.FC<PipelineCanvasProps> = ({ onSave, onGenerate }) =
     [reactFlowInstance, setNodes]
   );
 
-  const handleNodeAdd = useCallback((nodeType: NodeType, position: { x: number; y: number }) => {
-    // This is now handled by the drop functionality
-    console.log('Adding node:', nodeType, 'at position:', position);
-  }, []);
+
 
   const handleSave = useCallback(() => {
     onSave?.(nodes, edges);
@@ -356,6 +359,77 @@ const PipelineCanvas: React.FC<PipelineCanvasProps> = ({ onSave, onGenerate }) =
     };
   }, [handleKeyDown]);
 
+  // Template loading functionality
+  const loadTemplate = useCallback((template: Pipeline) => {
+    console.log('Loading template:', template.name);
+    
+    // Clear existing nodes and edges
+    setNodes([]);
+    setEdges([]);
+    
+    // Load template nodes
+    const templateNodes: PipelineNode[] = template.nodes.map(node => ({
+      ...node,
+      id: `${node.id}-${Date.now()}`, // Ensure unique IDs
+      data: {
+        ...node.data,
+        id: `${node.data.id}-${Date.now()}`,
+        status: 'idle'
+      }
+    }));
+    
+    // Load template edges with updated node IDs
+    const nodeIdMap = new Map<string, string>();
+    template.nodes.forEach((originalNode, index) => {
+      nodeIdMap.set(originalNode.id, templateNodes[index].id);
+    });
+    
+    const templateEdges: PipelineEdge[] = template.edges.map(edge => ({
+      ...edge,
+      id: `edge-${Date.now()}-${Math.random()}`,
+      source: nodeIdMap.get(edge.source) || edge.source,
+      target: nodeIdMap.get(edge.target) || edge.target,
+      style: {
+        stroke: getDataTypeColor(edge.dataType),
+        strokeWidth: 2,
+      },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        color: getDataTypeColor(edge.dataType),
+      }
+    }));
+    
+    setNodes(templateNodes);
+    setEdges(templateEdges);
+    
+    // Clear selections
+    setSelectedNode(null);
+    setSelectedNodes([]);
+    setIsConfigOpen(false);
+    
+    console.log(`✅ Template loaded: ${templateNodes.length} nodes, ${templateEdges.length} edges`);
+  }, [setNodes, setEdges, getDataTypeColor]);
+
+  const clearCanvas = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setSelectedNodes([]);
+    setIsConfigOpen(false);
+    console.log('Canvas cleared');
+  }, [setNodes, setEdges]);
+
+  const getCanvasData = useCallback(() => {
+    return { nodes, edges };
+  }, [nodes, edges]);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    loadTemplate,
+    clearCanvas,
+    getCanvasData
+  }), [loadTemplate, clearCanvas, getCanvasData]);
+
   // Mini map node colors based on node type
   const miniMapNodeColor = (node: Node) => {
     const pipelineNode = node as PipelineNode;
@@ -375,7 +449,7 @@ const PipelineCanvas: React.FC<PipelineCanvasProps> = ({ onSave, onGenerate }) =
       {/* Left Sidebar - Node Palette */}
       {isPaletteOpen && (
         <div style={{ width: '320px', height: '100%', backgroundColor: 'white', borderRight: '1px solid #e5e7eb' }}>
-          <NodePalette onNodeAdd={handleNodeAdd} />
+          <NodePalette onClose={() => setIsPaletteOpen(false)} />
         </div>
       )}
 
@@ -497,6 +571,8 @@ const PipelineCanvas: React.FC<PipelineCanvasProps> = ({ onSave, onGenerate }) =
       )}
     </div>
   );
-};
+});
+
+PipelineCanvas.displayName = 'PipelineCanvas';
 
 export default PipelineCanvas; 

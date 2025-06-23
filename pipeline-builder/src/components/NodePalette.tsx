@@ -1,13 +1,6 @@
 import React from 'react';
 import { 
-  FileText, 
   Type, 
-  Scissors, 
-  Zap, 
-  Database, 
-  Search, 
-  Brain, 
-  MessageSquare, 
   GitBranch, 
   Merge, 
   MessageCircle, 

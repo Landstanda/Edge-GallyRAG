@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Workflow, Code, Save, Settings, FileText } from 'lucide-react';
 
-import PipelineCanvas from './components/PipelineCanvas';
+import PipelineCanvas, { type PipelineCanvasHandle } from './components/PipelineCanvas';
 import { DOCUMENT_QA_TEMPLATE } from './data/templates';
+import { generateCodeFromPipeline } from './utils/codeGenerator';
 import type { Node, Edge } from '@xyflow/react';
 
 function App() {
   const [currentPipeline, setCurrentPipeline] = useState<string>('Untitled Pipeline');
   const [generatedCode, setGeneratedCode] = useState<string>('');
   const [showCodeModal, setShowCodeModal] = useState(false);
-  const [canvasRef] = useState<any>(null);
+  const canvasRef = useRef<PipelineCanvasHandle>(null);
 
   const handleSave = (nodes: Node[], edges: Edge[]) => {
     console.log('Saving pipeline:', { nodes, edges });
@@ -18,8 +19,8 @@ function App() {
   };
 
   const handleLoadTemplate = () => {
-    if (canvasRef && canvasRef.loadTemplate) {
-      canvasRef.loadTemplate(DOCUMENT_QA_TEMPLATE);
+    if (canvasRef.current) {
+      canvasRef.current.loadTemplate(DOCUMENT_QA_TEMPLATE);
       setCurrentPipeline(DOCUMENT_QA_TEMPLATE.name);
     }
   };
@@ -27,59 +28,40 @@ function App() {
   const handleGenerate = (nodes: Node[], edges: Edge[]) => {
     console.log('Generating Kotlin code for:', { nodes, edges });
     
-    // Mock generated code - this will be replaced with real code generation
-    const mockKotlinCode = `
-// Generated RAG Pipeline Code for Edge Gallery
-package com.google.ai.edge.gallery.rag.generated
-
-import android.app.Application
-import android.content.Context
-import com.google.ai.edge.localagents.rag.chains.ChainConfig
-import com.google.ai.edge.localagents.rag.chains.RetrievalAndInferenceChain
-import com.google.ai.edge.localagents.rag.memory.SqliteVectorStore
-import com.google.ai.edge.localagents.rag.memory.DefaultSemanticTextMemory
-import com.google.ai.edge.localagents.rag.models.GeckoEmbeddingModel
-import com.google.ai.edge.localagents.rag.models.MediaPipeLlmBackend
-
-/**
- * Generated Pipeline: ${currentPipeline}
- * Nodes: ${nodes.length}
- * Edges: ${edges.length}
- * Generated at: ${new Date().toISOString()}
- */
-class GeneratedRagPipeline private constructor(private val application: Application) {
+    // Generate real Kotlin code using our code generator
+    const codeResult = generateCodeFromPipeline(nodes, edges, currentPipeline);
     
-    companion object {
-        @Volatile
-        private var INSTANCE: GeneratedRagPipeline? = null
-        
-        fun getInstance(application: Application): GeneratedRagPipeline {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: GeneratedRagPipeline(application).also { INSTANCE = it }
-            }
-        }
+    if (codeResult.success && codeResult.kotlinCode) {
+      setGeneratedCode(codeResult.kotlinCode);
+      console.log('✅ Code generation successful!');
+      if (codeResult.warnings.length > 0) {
+        console.warn('⚠️ Warnings:', codeResult.warnings);
+      }
+    } else {
+      // Show error in generated code
+      const errorCode = `/*
+❌ CODE GENERATION FAILED
+
+Errors:
+${codeResult.errors.map(err => `- ${err}`).join('\n')}
+
+Warnings:
+${codeResult.warnings.map(warn => `- ${warn}`).join('\n')}
+
+Please fix the pipeline structure and try again.
+*/
+
+// Pipeline Analysis Results:
+// Nodes: ${nodes.length}
+// Edges: ${edges.length}
+// Validation Status: ${codeResult.success ? 'PASSED' : 'FAILED'}
+
+${codeResult.kotlinCode || '// No code generated due to errors'}`;
+      
+      setGeneratedCode(errorCode);
+      console.error('❌ Code generation failed:', codeResult.errors);
     }
     
-    // TODO: Implement generated pipeline logic based on visual flow
-    // This will include:
-    // - Node execution order analysis
-    // - Data flow between nodes
-    // - Configuration parameter injection
-    // - Error handling and validation
-    
-    private fun executeNode(nodeId: String, input: Any): Any {
-        // Generated node execution logic
-        return input
-    }
-    
-    fun executePipeline(input: String): String {
-        // Generated pipeline execution
-        return "Generated response from visual pipeline"
-    }
-}
-    `.trim();
-
-    setGeneratedCode(mockKotlinCode);
     setShowCodeModal(true);
   };
 
@@ -135,7 +117,7 @@ class GeneratedRagPipeline private constructor(private val application: Applicat
 
       {/* Main Canvas Area */}
       <main style={{ flex: 1, overflow: 'hidden' }}>
-        <PipelineCanvas onSave={handleSave} onGenerate={handleGenerate} />
+        <PipelineCanvas ref={canvasRef} onSave={handleSave} onGenerate={handleGenerate} />
       </main>
 
       {/* Code Generation Modal */}
